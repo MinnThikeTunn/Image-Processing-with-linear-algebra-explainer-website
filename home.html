@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lecture 7.1: Image Processing by Linear Algebra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* A slightly darker gray for better contrast */
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .value-display {
+            transition: all 0.2s ease-in-out;
+        }
+        canvas {
+            image-rendering: pixelated;
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+        }
+        .control-btn:focus-visible, .tab-btn:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-btn.active {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+        .explainer-section {
+            display: none;
+        }
+        .explainer-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="text-gray-300 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-100 mb-2">Lecture 7.1: Image Processing</h1>
+        <p class="text-center text-gray-400 mb-6">An interactive demonstration of Linear Algebra concepts.</p>
+
+        <!-- Tabs -->
+        <div class="flex justify-center space-x-2 md:space-x-4 mb-4 bg-gray-900 p-2 rounded-lg">
+            <button class="tab-btn active" data-tab="svd">SVD Compression</button>
+            <button class="tab-btn" data-tab="rank1">Rank-1 Decomposition</button>
+            <button class="tab-btn" data-tab="pca">Eigenface PCA</button>
+        </div>
+
+        <!-- Explainer 1: SVD Compression -->
+        <div id="explainer-svd" class="explainer-section active">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
+                    <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
+                    <div class="flex-grow text-center text-gray-400 text-sm">svd_compression.py</div>
+                </div>
+                <div class="p-6 code-font text-base md:text-lg leading-loose">
+                    <div><span class="text-gray-500">1</span> <span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span> <span class="text-pink-500">=</span> <span class="text-green-400">svd</span>(<span class="text-orange-400">original_image</span>)</div>
+                    <div class="mt-2"><span class="text-gray-500">2</span> <span class="text-gray-400"># Number of singular values to use (k)</span></div>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <span class="text-gray-500">3</span>
+                        <div><span class="text-purple-400">k</span><span class="text-pink-500">=</span>
+                            <div class="inline-flex items-center bg-gray-900 rounded-md p-1 mx-2">
+                                <button id="svd-decrease-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">-</button>
+                                <span id="svd-k-value" class="value-display text-yellow-400 font-bold text-xl px-4 w-16 text-center">5</span>
+                                <button id="svd-increase-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2"><span class="text-gray-500">4</span> <span class="text-orange-400">reconstructed</span> <span class="text-pink-500">=</span> <span class="text-green-400">reconstruct</span>(<span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span>, <span class="text-purple-400">k</span>)</div>
+                </div>
+                <div class="bg-black/50 border-t border-gray-700 p-4 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Original</h3>
+                            <canvas id="svd-original-canvas" width="256" height="256" class="bg-gray-700"></canvas>
+                        </div>
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Reconstructed (<span id="svd-k-label">k=5</span>)</h3>
+                            <canvas id="svd-reconstructed-canvas" width="256" height="256" class="bg-gray-700"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-500 mt-4 text-sm">Adjust 'k' to see how the number of singular values affects image quality.</p>
+        </div>
+
+        <!-- Explainer 2: Rank-1 Decomposition -->
+        <div id="explainer-rank1" class="explainer-section">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
+                    <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
+                    <div class="flex-grow text-center text-gray-400 text-sm">rank_one_sum.py</div>
+                </div>
+                <div class="p-6 code-font text-base md:text-lg leading-loose">
+                    <div><span class="text-gray-500">1</span> <span class="text-orange-400">image</span> <span class="text-pink-500">=</span> <span class="text-green-400">sum</span>([<span class="text-blue-400">rank1_piece_1</span>, <span class="text-blue-400">rank1_piece_2</span>, <span class="text-gray-500">...</span>])</div>
+                    <div class="mt-2"><span class="text-gray-500">2</span> <span class="text-gray-400"># Number of rank-1 matrices to sum</span></div>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <span class="text-gray-500">3</span>
+                        <div><span class="text-purple-400">num_pieces</span><span class="text-pink-500">=</span>
+                            <div class="inline-flex items-center bg-gray-900 rounded-md p-1 mx-2">
+                                <button id="rank1-decrease-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">-</button>
+                                <span id="rank1-k-value" class="value-display text-yellow-400 font-bold text-xl px-4 w-16 text-center">1</span>
+                                <button id="rank1-increase-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2"><span class="text-gray-500">4</span> <span class="text-orange-400">approximation</span> <span class="text-pink-500">=</span> <span class="text-green-400">build_from_pieces</span>(<span class="text-purple-400">num_pieces</span>)</div>
+                </div>
+                <div class="bg-black/50 border-t border-gray-700 p-4 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Original Pattern</h3>
+                            <canvas id="rank1-original-canvas" width="128" height="128" class="bg-gray-700"></canvas>
+                        </div>
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Built from <span id="rank1-k-label">1</span> Pieces</h3>
+                            <canvas id="rank1-reconstructed-canvas" width="128" height="128" class="bg-gray-700"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-500 mt-4 text-sm">Increase the number of rank-1 matrices to build a better approximation.</p>
+        </div>
+
+        <!-- Explainer 3: Eigenface PCA -->
+        <div id="explainer-pca" class="explainer-section">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
+                    <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
+                    <div class="flex-grow text-center text-gray-400 text-sm">eigenface_pca.py</div>
+                </div>
+                <div class="p-6 code-font text-base md:text-lg leading-loose">
+                    <div><span class="text-gray-500">1</span> <span class="text-orange-400">target_face</span> <span class="text-pink-500">=</span> <span class="text-purple-400">c1</span><span class="text-pink-500">*</span><span class="text-blue-400">eyes</span> <span class="text-pink-500">+</span> <span class="text-purple-400">c2</span><span class="text-pink-500">*</span><span class="text-blue-400">nose</span> <span class="text-pink-500">+</span> <span class="text-purple-400">c3</span><span class="text-pink-500">*</span><span class="text-blue-400">mouth</span></div>
+                    <div class="mt-3"><span class="text-gray-500">2</span> <span class="text-gray-400"># Adjust weights c1, c2, c3 to match</span></div>
+                    <div class="mt-2 space-y-3">
+                        <div class="flex items-center"><span class="text-gray-500">3</span><label for="pca-c1" class="w-16 ml-4 text-purple-400">c1:</label><input id="pca-c1" type="range" min="0" max="1" value="0.5" step="0.05" class="w-full"></div>
+                        <div class="flex items-center"><span class="text-gray-500">4</span><label for="pca-c2" class="w-16 ml-4 text-purple-400">c2:</label><input id="pca-c2" type="range" min="0" max="1" value="0.5" step="0.05" class="w-full"></div>
+                        <div class="flex items-center"><span class="text-gray-500">5</span><label for="pca-c3" class="w-16 ml-4 text-purple-400">c3:</label><input id="pca-c3" type="range" min="0" max="1" value="0.5" step="0.05" class="w-full"></div>
+                    </div>
+                </div>
+                <div class="bg-black/50 border-t border-gray-700 p-4 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Target Face</h3>
+                            <canvas id="pca-target-canvas" width="128" height="128" class="bg-gray-700"></canvas>
+                        </div>
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Reconstructed Face</h3>
+                            <canvas id="pca-reconstructed-canvas" width="128" height="128" class="bg-gray-700"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-500 mt-4 text-sm">Adjust the weights to combine the "eigen-features" and match the target face.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Tab Functionality ---
+        const tabs = document.querySelectorAll('.tab-btn');
+        const sections = document.querySelectorAll('.explainer-section');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const targetId = 'explainer-' + tab.dataset.tab;
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // --- Explainer 1: SVD Compression ---
+        (() => {
+            const kValueElement = document.getElementById('svd-k-value');
+            const kLabelElement = document.getElementById('svd-k-label');
+            const increaseBtn = document.getElementById('svd-increase-btn');
+            const decreaseBtn = document.getElementById('svd-decrease-btn');
+            const originalCanvas = document.getElementById('svd-original-canvas');
+            const reconstructedCanvas = document.getElementById('svd-reconstructed-canvas');
+            const originalCtx = originalCanvas.getContext('2d');
+            const reconstructedCtx = reconstructedCanvas.getContext('2d');
+
+            const kValues = [1, 2, 5, 10, 20, 40, 64, 128, 256];
+            let currentIndex = 2;
+
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = 'https://placehold.co/256x256/4f46e5/e0e7ff?text=SVD';
+            
+            img.onload = () => {
+                originalCtx.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
+                updateSvdDisplay();
+            };
+            img.onerror = () => {
+                originalCtx.fillStyle = '#4b5563';
+                originalCtx.fillRect(0,0,originalCanvas.width, originalCanvas.height);
+                originalCtx.fillStyle = 'white';
+                originalCtx.textAlign = 'center';
+                originalCtx.fillText('Image failed to load', originalCanvas.width/2, originalCanvas.height/2);
+            };
+
+            function applySvdEffect() {
+                const k = kValues[currentIndex];
+                const canvasWidth = reconstructedCanvas.width;
+                const canvasHeight = reconstructedCanvas.height;
+                const blockSize = Math.max(1, Math.floor(canvasWidth / (k * 1.5)));
+
+                reconstructedCtx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+                const imageData = reconstructedCtx.getImageData(0, 0, canvasWidth, canvasHeight);
+                const data = imageData.data;
+
+                for (let y = 0; y < canvasHeight; y += blockSize) {
+                    for (let x = 0; x < canvasWidth; x += blockSize) {
+                        const i = (y * canvasWidth + x) * 4;
+                        const r = data[i], g = data[i + 1], b = data[i + 2];
+                        for (let blockY = 0; blockY < blockSize; blockY++) {
+                            for (let blockX = 0; blockX < blockSize; blockX++) {
+                                if (x + blockX < canvasWidth && y + blockY < canvasHeight) {
+                                    const j = ((y + blockY) * canvasWidth + (x + blockX)) * 4;
+                                    data[j] = r; data[j + 1] = g; data[j + 2] = b;
+                                }
+                            }
+                        }
+                    }
+                }
+                reconstructedCtx.putImageData(imageData, 0, 0);
+            }
+
+            function updateSvdDisplay() {
+                if (!img.complete || img.naturalWidth === 0) return;
+                const k = kValues[currentIndex];
+                kValueElement.textContent = k;
+                kLabelElement.textContent = `k=${k}`;
+                applySvdEffect();
+                kValueElement.classList.add('scale-125', 'text-yellow-300');
+                setTimeout(() => kValueElement.classList.remove('scale-125', 'text-yellow-300'), 200);
+            }
+
+            increaseBtn.addEventListener('click', () => {
+                if (currentIndex < kValues.length - 1) { currentIndex++; updateSvdDisplay(); }
+            });
+            decreaseBtn.addEventListener('click', () => {
+                if (currentIndex > 0) { currentIndex--; updateSvdDisplay(); }
+            });
+        })();
+
+        // --- Explainer 2: Rank-1 Decomposition ---
+        (() => {
+            const kValueElement = document.getElementById('rank1-k-value');
+            const kLabelElement = document.getElementById('rank1-k-label');
+            const increaseBtn = document.getElementById('rank1-increase-btn');
+            const decreaseBtn = document.getElementById('rank1-decrease-btn');
+            const originalCanvas = document.getElementById('rank1-original-canvas');
+            const reconstructedCanvas = document.getElementById('rank1-reconstructed-canvas');
+            const originalCtx = originalCanvas.getContext('2d');
+            const reconstructedCtx = reconstructedCanvas.getContext('2d');
+
+            const numPieces = 8;
+            let currentPieces = 1;
+            
+            function drawPattern(ctx, pieces) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#a78bfa'; // A nice violet color
+                const w = ctx.canvas.width;
+                const h = ctx.canvas.height;
+                const bar = w / 8;
+
+                if (pieces >= 1) ctx.fillRect(bar * 3, 0, bar * 2, h); // Vertical bar
+                if (pieces >= 2) ctx.fillRect(0, bar * 3, w, bar * 2); // Horizontal bar
+                if (pieces >= 3) { ctx.fillStyle = '#6d28d9'; ctx.fillRect(0, 0, bar, bar); } // Corners
+                if (pieces >= 4) ctx.fillRect(w - bar, 0, bar, bar);
+                if (pieces >= 5) ctx.fillRect(0, h - bar, bar, bar);
+                if (pieces >= 6) ctx.fillRect(w - bar, h - bar, bar, bar);
+                if (pieces >= 7) { ctx.fillStyle = '#facc15'; ctx.fillRect(bar, bar, bar*2, bar*2); } // Inner squares
+                if (pieces >= 8) ctx.fillRect(w - bar*3, h - bar*3, bar*2, bar*2);
+            }
+
+            function updateRank1Display() {
+                kValueElement.textContent = currentPieces;
+                kLabelElement.textContent = currentPieces;
+                drawPattern(reconstructedCtx, currentPieces);
+                kValueElement.classList.add('scale-125', 'text-yellow-300');
+                setTimeout(() => kValueElement.classList.remove('scale-125', 'text-yellow-300'), 200);
+            }
+
+            increaseBtn.addEventListener('click', () => {
+                if (currentPieces < numPieces) { currentPieces++; updateRank1Display(); }
+            });
+            decreaseBtn.addEventListener('click', () => {
+                if (currentPieces > 1) { currentPieces--; updateRank1Display(); }
+            });
+            
+            drawPattern(originalCtx, numPieces); // Draw the full pattern initially
+            updateRank1Display();
+
+        })();
+
+        // --- Explainer 3: Eigenface PCA ---
+        (() => {
+            const targetCanvas = document.getElementById('pca-target-canvas');
+            const reconstructedCanvas = document.getElementById('pca-reconstructed-canvas');
+            const targetCtx = targetCanvas.getContext('2d');
+            const reconstructedCtx = reconstructedCanvas.getContext('2d');
+            const c1Slider = document.getElementById('pca-c1');
+            const c2Slider = document.getElementById('pca-c2');
+            const c3Slider = document.getElementById('pca-c3');
+
+            const targetWeights = { c1: 0.7, c2: 0.2, c3: 0.8 };
+
+            function drawFace(ctx, weights, isTarget = false) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const w = ctx.canvas.width;
+                const h = ctx.canvas.height;
+                
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = isTarget ? '#fde047' : '#93c5fd';
+                ctx.lineWidth = 4;
+
+                // Component 1: Eyes (width varies)
+                ctx.globalAlpha = weights.c1;
+                const eyeWidth = 10 + 20 * weights.c1;
+                ctx.strokeRect(w*0.2 - eyeWidth/2, h*0.3, eyeWidth, 10);
+                ctx.strokeRect(w*0.8 - eyeWidth/2, h*0.3, eyeWidth, 10);
+
+                // Component 2: Nose (height varies)
+                ctx.globalAlpha = weights.c2;
+                const noseHeight = 10 + 20 * weights.c2;
+                ctx.beginPath();
+                ctx.moveTo(w*0.5, h*0.45);
+                ctx.lineTo(w*0.5, h*0.45 + noseHeight);
+                ctx.stroke();
+
+                // Component 3: Mouth (curvature varies)
+                ctx.globalAlpha = weights.c3;
+                const smile = (weights.c3 - 0.5) * 40; // from frown to smile
+                ctx.beginPath();
+                ctx.moveTo(w*0.3, h*0.7);
+                ctx.quadraticCurveTo(w*0.5, h*0.7 + smile, w*0.7, h*0.7);
+                ctx.stroke();
+                
+                ctx.globalAlpha = 1.0; // Reset alpha
+            }
+
+            function updatePcaDisplay() {
+                const currentWeights = {
+                    c1: parseFloat(c1Slider.value),
+                    c2: parseFloat(c2Slider.value),
+                    c3: parseFloat(c3Slider.value)
+                };
+                drawFace(reconstructedCtx, currentWeights);
+            }
+            
+            [c1Slider, c2Slider, c3Slider].forEach(slider => {
+                slider.addEventListener('input', updatePcaDisplay);
+            });
+
+            drawFace(targetCtx, targetWeights, true);
+            updatePcaDisplay();
+        })();
+
+    </script>
+</body>
+</html>
