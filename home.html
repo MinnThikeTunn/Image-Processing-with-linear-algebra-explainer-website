@@ -53,51 +53,13 @@
 
         <!-- Tabs -->
         <div class="flex justify-center space-x-2 md:space-x-4 mb-4 bg-gray-900 p-2 rounded-lg">
-            <button class="tab-btn active" data-tab="svd">SVD Compression</button>
-            <button class="tab-btn" data-tab="rank1">Rank-1 Decomposition</button>
+            <button class="tab-btn  active" data-tab="rank1">Rank-k Decomposition</button>
+            <button class="tab-btn" data-tab="svd">SVD Compression</button>      
             <button class="tab-btn" data-tab="pca">Eigenface PCA</button>
         </div>
 
         <!-- Explainer 1: SVD Compression -->
-        <div id="explainer-svd" class="explainer-section active">
-            <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
-                <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
-                    <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
-                    <div class="flex-grow text-center text-gray-400 text-sm">svd_compression.py</div>
-                </div>
-                <div class="p-6 code-font text-base md:text-lg leading-loose">
-                    <div><span class="text-gray-500">1</span> <span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span> <span class="text-pink-500">=</span> <span class="text-green-400">svd</span>(<span class="text-orange-400">original_image</span>)</div>
-                    <div class="mt-2"><span class="text-gray-500">2</span> <span class="text-gray-400"># Number of singular values to use (k)</span></div>
-                    <div class="flex items-center space-x-4 mt-2">
-                        <span class="text-gray-500">3</span>
-                        <div><span class="text-purple-400">k</span><span class="text-pink-500">=</span>
-                            <div class="inline-flex items-center bg-gray-900 rounded-md p-1 mx-2">
-                                <button id="svd-decrease-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">-</button>
-                                <span id="svd-k-value" class="value-display text-yellow-400 font-bold text-xl px-4 w-16 text-center">5</span>
-                                <button id="svd-increase-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-2"><span class="text-gray-500">4</span> <span class="text-orange-400">reconstructed</span> <span class="text-pink-500">=</span> <span class="text-green-400">reconstruct</span>(<span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span>, <span class="text-purple-400">k</span>)</div>
-                </div>
-                <div class="bg-black/50 border-t border-gray-700 p-4 md:p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div>
-                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Original</h3>
-                            <canvas id="svd-original-canvas" width="256" height="256" class="bg-gray-700"></canvas>
-                        </div>
-                        <div>
-                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Reconstructed (<span id="svd-k-label">k=5</span>)</h3>
-                            <canvas id="svd-reconstructed-canvas" width="256" height="256" class="bg-gray-700"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p class="text-center text-gray-500 mt-4 text-sm">Adjust 'k' to see how the number of singular values affects image quality.</p>
-        </div>
-
-        <!-- Explainer 2: Rank-1 Decomposition -->
-        <div id="explainer-rank1" class="explainer-section">
+        <div id="explainer-rank1" class="explainer-section active">
             <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                 <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
                     <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
@@ -132,6 +94,44 @@
                 </div>
             </div>
             <p class="text-center text-gray-500 mt-4 text-sm">Increase the number of rank-1 matrices to build a better approximation.</p>
+        </div>
+
+        <!-- Explainer 2: Rank-1 Decomposition -->
+        <div id="explainer-svd" class="explainer-section">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div class="bg-gray-700/50 px-4 py-2 flex items-center border-b border-gray-700">
+                    <div class="flex space-x-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div></div>
+                    <div class="flex-grow text-center text-gray-400 text-sm">svd_compression.py</div>
+                </div>
+                <div class="p-6 code-font text-base md:text-lg leading-loose">
+                    <div><span class="text-gray-500">1</span> <span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span> <span class="text-pink-500">=</span> <span class="text-green-400">svd</span>(<span class="text-orange-400">original_image</span>)</div>
+                    <div class="mt-2"><span class="text-gray-500">2</span> <span class="text-gray-400"># Number of singular values to use (k)</span></div>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <span class="text-gray-500">3</span>
+                        <div><span class="text-purple-400">k</span><span class="text-pink-500">=</span>
+                            <div class="inline-flex items-center bg-gray-900 rounded-md p-1 mx-2">
+                                <button id="svd-decrease-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">-</button>
+                                <span id="svd-k-value" class="value-display text-yellow-400 font-bold text-xl px-4 w-16 text-center">5</span>
+                                <button id="svd-increase-btn" class="control-btn px-3 py-1 text-lg font-bold text-white rounded-md hover:bg-gray-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2"><span class="text-gray-500">4</span> <span class="text-orange-400">reconstructed</span> <span class="text-pink-500">=</span> <span class="text-green-400">reconstruct</span>(<span class="text-blue-400">U</span>, <span class="text-blue-400">S</span>, <span class="text-blue-400">V</span>, <span class="text-purple-400">k</span>)</div>
+                </div>
+                <div class="bg-black/50 border-t border-gray-700 p-4 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Original</h3>
+                            <canvas id="svd-original-canvas" width="256" height="256" class="bg-gray-700"></canvas>
+                        </div>
+                        <div>
+                            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-wider mb-2 text-center">Reconstructed (<span id="svd-k-label">k=5</span>)</h3>
+                            <canvas id="svd-reconstructed-canvas" width="256" height="256" class="bg-gray-700"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-500 mt-4 text-sm">Adjust 'k' to see how the number of singular values affects image quality.</p>
         </div>
 
         <!-- Explainer 3: Eigenface PCA -->
